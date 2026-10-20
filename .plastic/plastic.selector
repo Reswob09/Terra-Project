@@ -1,0 +1,4 @@
+repository "Terra Project 2026-10-19_14-16-55/Terra Project@20067541922196@cloud"
+  path "/"
+    br "/main"
+    co "/main"
