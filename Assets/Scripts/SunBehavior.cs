@@ -1,5 +1,8 @@
+using Unity.VisualScripting;
+using UnityEditor.Callbacks;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Experimental.GlobalIllumination;
 using UnityEngine.UIElements;
 
 public class SunBehavior : MonoBehaviour
@@ -17,15 +20,9 @@ public class SunBehavior : MonoBehaviour
     void Start()
     {
        ifMoving = false;
+       GetComponent<DirectionalLight>();
     }
 
-     void OnCollsionEnter(Collision collision)
-    {
-        if(collision.gameObject.CompareTag("BehaviorTriggers"))
-        {
-            ifMoving = true;
-        }
-    }
     void Update()
     {
 
@@ -36,13 +33,15 @@ public class SunBehavior : MonoBehaviour
             moveToB = !moveToB;
             t = 0f;
 
+           directionalLight.intensity = 100f;
+
             Debug.Log("The Sun is Moving!");
         }
 
         t += Time.deltaTime * sunlerpSpeed;
         t = Mathf.Clamp01(t);
 
-        Vector3 startPos = moveToB ? positionA.eulerAngles : positionB.eulerAngles;
+       Vector3 startPos = moveToB ? positionA.eulerAngles : positionB.eulerAngles;
         Vector3 targetPos = moveToB ? positionB.eulerAngles : positionA.eulerAngles;
 
         transform.position = Vector3.Lerp(startPos, targetPos, t);

@@ -1,4 +1,6 @@
 using System.Numerics;
+using JetBrains.Annotations;
+using NUnit.Framework;
 using Unity.VisualScripting;
 using UnityEditor.Callbacks;
 using UnityEngine;
@@ -7,26 +9,27 @@ using Quaternion = UnityEngine.Quaternion;
 using Vector3 = UnityEngine.Vector3;
 public class Controller : MonoBehaviour
 {
-    [SerializeField] float moveSpeed = 15f;
-   //[SerializeField] float jumpHeight = 5f;
+    public GameObject player;
+    [SerializeField] float moveSpeed = 15f; // move speed is acceleration
+    [SerializeField] float deceleration = 1.0f;
+    [SerializeField] float strafeSpeed = 7.5f;
+    [SerializeField] float maxSpeed = 5000.0f;
+    private float currentSpeed = 0.0f;
     [SerializeField] float jumpForce = 5f;
-    [SerializeField] float gravity = 7.5f;
-    private Rigidbody rb;
+    [SerializeField] float jumpHeight = 2.5f;
+    [SerializeField] Rigidbody rb;
     private Camera cam;
     public GameObject playerCamera;
     [SerializeField] float mouseSensitivity = 200f;
     [SerializeField] float lerpSpeed = 10f;
     private float cameraPitch;
-   [SerializeField] float fovNormal = 30f;
-    [SerializeField] float fovZoomed = 60f;
+   [SerializeField] float fovNormal = 60f;
+    [SerializeField] float fovZoomed = 30f;
     [SerializeField] float targetFOV;
     [SerializeField] float fovSpeed = 5f;
     [SerializeField] float  minDistance = 5f;
     [SerializeField] float cameraDistance = 10f;
     [SerializeField] float cameraRadius = 3f;
-
-
-
 
     // MISC VARS
     private readonly int collisionMask;
@@ -81,51 +84,48 @@ public class Controller : MonoBehaviour
         // MOVEMENT CONTROLS
       if (Input.GetKey(KeyCode.W))
         {
-            Vector3 currentPosition = this.gameObject.transform.localPosition;
-            this.gameObject.transform.localPosition = new Vector3(
-                currentPosition.x, 
-                currentPosition.y, 
-                currentPosition.z += moveSpeed * Time.deltaTime);
-        }
-        if (Input.GetKey(KeyCode.A))
-        {
-            Vector3 currentPosition = this.gameObject.transform.localPosition;
-            this.gameObject.transform.localPosition = new Vector3(
-                currentPosition.x -= moveSpeed * Time.deltaTime,
-                currentPosition.y,
-                currentPosition.z);
-        }
-        if (Input.GetKey(KeyCode.S))
-        {
-            Vector3 currentPosition = this.gameObject.transform.localPosition;
-            this.gameObject.transform.localPosition = new Vector3(
-                currentPosition.x,
-                currentPosition.y,
-                currentPosition.z -= moveSpeed * Time.deltaTime);
-        }
-        if(Input.GetKey(KeyCode.D))
-        {
-            Vector3 currentPosition = this.gameObject.transform.localPosition;
-            this.gameObject.transform.localPosition = new Vector3(
-                currentPosition.x += moveSpeed * Time.deltaTime,
-                currentPosition.y,
-                currentPosition.z);
-        }
-        if(Input.GetKey(KeyCode.Space))
-        {
-            Vector3 currentPosition = this.gameObject.transform.localPosition;
-            this.gameObject.transform.localPosition = new Vector3(
-                currentPosition.x,
-                currentPosition.y += jumpForce * Time.deltaTime,
-                currentPosition.z);
+           currentSpeed = Mathf.Min(currentSpeed + moveSpeed *Time.deltaTime, maxSpeed);
+
+           transform.Translate(Vector3.forward * moveSpeed * Time.deltaTime);
         }
         else
         {
-            Vector3 currentPosition = this.gameObject.transform.localPosition;
-            this.gameObject.transform.localPosition = new Vector3(
-                currentPosition.x,
-                currentPosition.y -= gravity * Time.deltaTime,
-                currentPosition.z);
+            currentSpeed -= deceleration * Time.deltaTime;
+            currentSpeed = Mathf.Lerp(currentSpeed, 0.0f, deceleration * Time.deltaTime);
+        }
+       
+
+        if (Input.GetKey(KeyCode.A))
+        {
+           transform.Translate(Vector3.left * strafeSpeed * Time.deltaTime);
+        }
+        if (Input.GetKey(KeyCode.S))
+        {
+            transform.Translate(Vector3.back * moveSpeed * Time.deltaTime);
+        }
+        if(Input.GetKey(KeyCode.D))
+        {
+            transform.Translate(Vector3.right * strafeSpeed * Time.deltaTime);
+        }
+
+        bool isGrounded = Physics.Raycast(transform.position, Vector3.down, jumpHeight);
+
+        if(Input.GetKeyDown(KeyCode.Space) && isGrounded) // please change this to not be physics based
+        {
+            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+        }
+
+        if(Input.GetKey(KeyCode.LeftControl))
+        {
+          maxSpeed = 100f;
+          moveSpeed = 5f;
+          Debug.Log("Speed Decreased");
+        }
+        else
+        {
+            maxSpeed = 500f;
+            moveSpeed = 15f;
+            Debug.Log("Speed Increased");
         }
 
     }
