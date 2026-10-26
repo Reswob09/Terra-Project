@@ -1,27 +1,19 @@
-using System.Numerics;
-using JetBrains.Annotations;
-using NUnit.Framework;
-using Unity.VisualScripting;
-using UnityEditor.Callbacks;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Rendering;
 using Quaternion = UnityEngine.Quaternion;
 using Vector3 = UnityEngine.Vector3;
 public class Controller : MonoBehaviour
 {
-    public GameObject player;
-    [SerializeField] float moveSpeed = 15f; // move speed is acceleration
-    [SerializeField] float deceleration = 1.0f;
-    [SerializeField] float strafeSpeed = 7.5f;
-    [SerializeField] float maxSpeed = 5000.0f;
-    private float currentSpeed = 0.0f;
-    [SerializeField] float jumpForce = 5f;
-    [SerializeField] float jumpHeight = 2.5f;
+
     [SerializeField] Rigidbody rb;
     private Camera cam;
     public GameObject playerCamera;
     [SerializeField] float mouseSensitivity = 200f;
     [SerializeField] float lerpSpeed = 10f;
+    [SerializeField] float shootDistance = 3f;
+    [SerializeField] float interactRange = 5f;
+    private bool shootHit;
     private float cameraPitch;
    [SerializeField] float fovNormal = 60f;
     [SerializeField] float fovZoomed = 30f;
@@ -30,9 +22,17 @@ public class Controller : MonoBehaviour
     [SerializeField] float  minDistance = 5f;
     [SerializeField] float cameraDistance = 10f;
     [SerializeField] float cameraRadius = 3f;
+    [SerializeField] float acceleration = 30f;
+    [SerializeField] float deceleration = 15f;
+    [SerializeField] float maxSpeed = 10f;
+    [SerializeField] float slowMaxSpeed = 4f;
+    [SerializeField] float jumpHeight = 1.5f;
+    [SerializeField] float jumpForce = 5f;
+    public float currentHeight => transform.position.y;
+    public float currentSpeed => new Vector3(rb.linearVelocity.x,0, rb.linearVelocity.z).magnitude;
 
     // MISC VARS
-    private readonly int collisionMask;
+    public LayerMask collisionMask;
     private float  currentDistance;
 
     private void Start()
@@ -46,28 +46,46 @@ public class Controller : MonoBehaviour
         cam.fieldOfView = fovNormal;
         currentDistance = cameraDistance;
 
+        shootHit = false;
+
         Debug.Log("No Compilng Errors :D");
     }
       private void FixedUpdate()
     {
-        float cameraHorizontalRotation = Input.GetAxis("Horizontal");
-        float cameraVerticalRotation = Input.GetAxis("Vertical");
+        float inputHorizontal = Input.GetAxisRaw("Horizontal");
+        float inputVertical = Input.GetAxisRaw("Vertical");
+        Vector3 desiredDirection = (transform.right * inputHorizontal + transform.forward * inputVertical).normalized;
 
-        Vector3 movement = transform.right * cameraHorizontalRotation + transform.forward * cameraVerticalRotation;
+        float speedLimit = Input.GetKey(KeyCode.LeftControl) ? slowMaxSpeed : maxSpeed;
 
-        rb.AddForce(movement * moveSpeed);
+        Vector3 currentVelocity = rb.linearVelocity;
+        Vector3 horizontalVelocity = new Vector3(currentVelocity.x, 0f, currentVelocity.z);
+
+        if(desiredDirection.sqrMagnitude > 0.01f)
+        {
+            horizontalVelocity = Vector3.MoveTowards(horizontalVelocity, desiredDirection * speedLimit, acceleration * Time.fixedDeltaTime);
+        }
+        else
+        {
+            horizontalVelocity = Vector3.MoveTowards(horizontalVelocity, Vector3.zero, deceleration * Time.fixedDeltaTime);
+
+            rb.linearVelocity = new Vector3(horizontalVelocity.x, currentVelocity.y, horizontalVelocity.z);
+        }
     }
 
     private void Update()
     {
+        RaycastHit hitInfo;
+
+
         // CAMERA CONTROLS
-        float mousePitch = Input.GetAxis("Mouse X");
-        float mouseYaw = Input.GetAxis("Mouse Y");
+        float mouseYaw = Input.GetAxis("Mouse X");
+        float mousePitch = Input.GetAxis("Mouse Y");
 
         transform.Rotate(
-            Vector3.up * mousePitch * mouseSensitivity * Time.deltaTime);
+            Vector3.up * mouseYaw * mouseSensitivity * Time.deltaTime);
             
-            cameraPitch -= mouseYaw * mouseSensitivity * Time.deltaTime;
+            cameraPitch -= mousePitch * mouseSensitivity * Time.deltaTime;
 
             cameraPitch = Mathf.Clamp( cameraPitch, -90.0f, 90.0f);
             
@@ -81,58 +99,37 @@ public class Controller : MonoBehaviour
         }
         cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, targetFOV, Time.deltaTime *  fovSpeed);
 
-        // MOVEMENT CONTROLS
-      if (Input.GetKey(KeyCode.W))
+        
+        if(Input.GetMouseButton(0))
         {
-           currentSpeed = Mathf.Min(currentSpeed + moveSpeed *Time.deltaTime, maxSpeed);
-
-           transform.Translate(Vector3.forward * moveSpeed * Time.deltaTime);
+            Physics.Raycast(transform.position, Vector3.forward, shootDistance);
+            shootHit = true;    
         }
-        else
+        if (Physics.Raycast(transform.position, Vector3.forward, out hitInfo, interactRange))
         {
-            currentSpeed -= deceleration * Time.deltaTime;
-            currentSpeed = Mathf.Lerp(currentSpeed, 0.0f, deceleration * Time.deltaTime);
-        }
-       
-
-        if (Input.GetKey(KeyCode.A))
-        {
-           transform.Translate(Vector3.left * strafeSpeed * Time.deltaTime);
-        }
-        if (Input.GetKey(KeyCode.S))
-        {
-            transform.Translate(Vector3.back * moveSpeed * Time.deltaTime);
-        }
-        if(Input.GetKey(KeyCode.D))
-        {
-            transform.Translate(Vector3.right * strafeSpeed * Time.deltaTime);
+            Debug.Log("I am looking at object: " + hitInfo.collider.name);
         }
 
-        bool isGrounded = Physics.Raycast(transform.position, Vector3.down, jumpHeight);
+        bool IsGrounded = Physics.Raycast(transform.position, Vector3.down, jumpHeight);
 
-        if(Input.GetKeyDown(KeyCode.Space) && isGrounded) // please change this to not be physics based
+        if(Input.GetKeyDown(KeyCode.Space) && IsGrounded)
         {
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
         }
 
-        if(Input.GetKey(KeyCode.LeftControl))
-        {
-          maxSpeed = 100f;
-          moveSpeed = 5f;
-          Debug.Log("Speed Decreased");
-        }
-        else
-        {
-            maxSpeed = 500f;
-            moveSpeed = 15f;
-            Debug.Log("Speed Increased");
-        }
-
     }
 
-     void LateUpdate()
+    void OnDrawGizmos()
+    {
+        Gizmos.color = Color.aquamarine;
+        Gizmos.DrawRay(transform.position, Vector3.forward * shootDistance);
+    }
+
+    void LateUpdate()
     {
         // CAMERA CLIPPING FUNCTION
+
+        // currently broken please fix this :(
 
         Vector3 pivot = transform.position + Vector3.up * 1.5f;
         Quaternion rotation = Quaternion.Euler(cameraPitch, transform.eulerAngles.y, 0f);

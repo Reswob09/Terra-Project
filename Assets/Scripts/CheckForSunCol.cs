@@ -3,21 +3,21 @@ using UnityEngine;
 
 public class CheckForSunCol : MonoBehaviour
 {
-    [SerializeField] public Rigidbody rb;
-    [SerializeField] GameObject playerCamera;
+     public Rigidbody rb;
     public Controller controller;
-    public SunBehavior sunBehavior;
+    public SunBehavior sun;
+    public bool shouldLerp;
     bool ifMoving; 
     void Start()
     {
-        ifMoving = false;
+        shouldLerp = false;
         rb.gameObject.GetComponent<Rigidbody>();
     }
      void OnTriggerEnter(Collider collision)
     {
         if(collision.gameObject.CompareTag("BehaviorTriggers"))
         {
-            ifMoving = true;
+            shouldLerp = true;
         }
     }
     void Update()

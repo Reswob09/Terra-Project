@@ -1,6 +1,5 @@
-using System;
+  using System;
 using Unity.VisualScripting;
-using UnityEditor.Callbacks;
 using UnityEngine;
 
 // AN IMPORTANT NOTE REGARDING RIGID BODIES: you can freeze certain axes, particularly X and Z, so that you player model does not tip over!

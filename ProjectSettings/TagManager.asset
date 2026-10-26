@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 3
   tags:
   - BehaviorTriggers
+  - LayerMask
   layers:
   - Default
   - TransparentFX
