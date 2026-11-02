@@ -7,9 +7,11 @@ public class SunBehavior : MonoBehaviour
 
     [SerializeField] Light directionalLight; 
 
-  //  [SerializeField] float sunlerpSpeed = 1f;
-  //  [SerializeField] Quaternion positionA;
-   // [SerializeField] Quaternion positionB;
+    [SerializeField] float sunlerpSpeed = 1f;
+
+    // please change these to euler angles not quaternions
+    [SerializeField] Quaternion positionA;
+    [SerializeField] Quaternion positionB;
     [SerializeField] float startIntensity = 1f;
     [SerializeField] float endIntensity = 1000f;
     [SerializeField] float duration = 5f;

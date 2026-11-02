@@ -23,6 +23,7 @@ public class PlayerMovement : MonoBehaviour
         rb.gameObject.GetComponent<Rigidbody>();
     }
 
+    // change movement system to use AddForce like the jumping mechanic. please :)
     void Update()
     {
         if(Input.GetKey(KeyCode.W))

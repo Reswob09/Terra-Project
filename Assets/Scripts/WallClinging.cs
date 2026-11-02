@@ -1,16 +1,15 @@
-  using System;
 using Unity.VisualScripting;
 using UnityEngine;
-
-// AN IMPORTANT NOTE REGARDING RIGID BODIES: you can freeze certain axes, particularly X and Z, so that you player model does not tip over!
 
 [RequireComponent(typeof(Rigidbody))]
 public class WallClinging : MonoBehaviour
 {
     [Header ("Detection")]
     [SerializeField] private LayerMask wallMask;
+    [SerializeField] private LayerMask groundMask;
     [SerializeField] private float wallCheckDistance = 0.8f;
     [SerializeField] private float minHeightAboveGround = 1f;
+    [SerializeField] private float groundCheckDistance = 3.0f;
 
     [Header("WallRun")]
     [SerializeField] private float wallGravityScale = 0.1f; // 0 = no gravity 1 = normal gravity
@@ -18,21 +17,37 @@ public class WallClinging : MonoBehaviour
     [SerializeField] private float wallRunForce = 20f;
     [SerializeField] private float stickForce = 5f;
     [SerializeField] private float maxWallRunTime = 3f;
+    [SerializeField] private float wallLeaveResetDelay = 0.5f;
 
     [Header ("Wall Jump")]
     [SerializeField] private float wallJumpForce = 7f;
     [SerializeField] private float wallJumpSideForce = 8f;
     [SerializeField] private KeyCode jumpKey = KeyCode.Space;
+    [SerializeField] float wallJumpCooldown = 0.25f;
+    [SerializeField] float lastWallJumpTime = -10f;
 
     private Rigidbody rb;
     private bool wallLeft, wallRight, isWallRunning;
     private RaycastHit leftHit, rightHit;
     private float wallRunTimer;
+    private float timeSinceWall;
 
+    public bool IsWallRunning => isWallRunning;
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
     }
+
+    void OnDisable()
+    {
+        isWallRunning = false;
+        
+        if(rb != null)
+        {
+            rb.useGravity = true;
+        }
+    }
+
     void Start()
     {
         
@@ -40,22 +55,52 @@ public class WallClinging : MonoBehaviour
 
     void Update()
     {
-        CheckForWall();
-
-        bool wantsToWallRun = (wallLeft || wallRight)
-         && !IsGrounded()
-         && wallRunTimer < maxWallRunTime;
-
-         if(wantsToWallRun && !isWallRunning) StartWallRun();
-         else if (!wantsToWallRun && isWallRunning) StopWallRun();
-
-         if (isWallRunning)
+        bool grounded = IsGrounded();
+        if(grounded)
         {
-            wallRunTimer += Time.deltaTime;
-            if(Input.GetKeyDown(jumpKey)) wallJump();
+            wallRunTimer = 0f;
         }
 
-        if (IsGrounded()) wallRunTimer = 0f;
+        CheckForWall();
+
+        bool touchingWall = wallLeft || wallRight;
+
+        timeSinceWall = touchingWall ? 0f : timeSinceWall + Time.deltaTime;
+        if (timeSinceWall > wallLeaveResetDelay)
+        {
+            wallRunTimer = 0f;
+        }
+
+        bool cooldownOver = Time.time > lastWallJumpTime + wallJumpCooldown;
+
+        bool wantsToWallRun = touchingWall
+        && !grounded
+        && wallRunTimer < maxWallRunTime
+        && cooldownOver;
+
+        if (wantsToWallRun && !isWallRunning)
+        {
+            StartWallRun();
+        }
+        else if(!wantsToWallRun && isWallRunning)
+        {
+            StopWallRun();
+        }
+
+        if (isWallRunning)
+        {
+            wallRunTimer += Time.deltaTime;
+        }
+
+
+        if (touchingWall && !grounded && cooldownOver && Input.GetKeyDown(jumpKey))
+        {
+            wallJump();
+        }
+
+        // Debug.Log($"grounded: {grounded} L:{wallLeft} R:{wallRight} running:{isWallRunning} timer:{wallRunTimer:F2}");
+
+        
     }
 
     void FixedUpdate()
@@ -70,7 +115,13 @@ public class WallClinging : MonoBehaviour
 
     bool IsGrounded()
     {
-        return Physics.Raycast(transform.position, Vector3.down, minHeightAboveGround);
+        Vector3 origin = transform.position + Vector3.up * 0.1f;
+        float distance = groundCheckDistance + 0.1f;
+
+        bool hit = Physics.Raycast(origin, Vector3.down, distance, groundMask, QueryTriggerInteraction.Ignore);
+
+       // Debug.DrawRay(origin, Vector3.down * distance, hit ? Color.antiqueWhite : Color.skyBlue);
+        return hit;
     }
 
     void StartWallRun()
@@ -104,18 +155,21 @@ public class WallClinging : MonoBehaviour
         Vector3 wallNormal = hit.normal;
         Vector3 wallForward = Vector3.Cross(wallNormal, Vector3.up);
 
-        // points in direction player if facing
-        if((transform.forward - wallForward).sqrMagnitude > (transform.forward + wallForward).sqrMagnitude)wallForward = -wallForward;
+      if (Vector3.Dot(transform.forward, wallForward) < 0f) wallForward = -wallForward;
 
-        // push player forward while playing is moving forward, also make sure player sticks to wall
-        if(Input.GetAxisRaw("vertical") >0)
+      if (Input.GetAxisRaw("Vertical") > 0)
+        {
             rb.AddForce(wallForward * wallRunForce, ForceMode.Force);
+        }
 
         rb.AddForce(-wallNormal * stickForce, ForceMode.Force);
     }
 
     void wallJump()
     {
+        wallRunTimer = 0f;
+        lastWallJumpTime = Time.time;
+
         RaycastHit hit = wallRight ? rightHit : leftHit;
         Vector3 jumpDir = Vector3.up * wallJumpForce + hit.normal * wallJumpSideForce;
 

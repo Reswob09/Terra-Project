@@ -1,39 +1,37 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
-using UnityEngine.Rendering;
 using Quaternion = UnityEngine.Quaternion;
 using Vector3 = UnityEngine.Vector3;
+// please transfer respawn point code to a new script :(
 public class Controller : MonoBehaviour
 {
 
     [SerializeField] Rigidbody rb;
+    private CharacterController cc;
+    public Transform player;
     private Camera cam;
     public GameObject playerCamera;
-    [SerializeField] float mouseSensitivity = 200f;
-    [SerializeField] float lerpSpeed = 10f;
+    [SerializeField] float mouseSensitivity = 3f;
     [SerializeField] float shootDistance = 3f;
     [SerializeField] float interactRange = 5f;
-    private bool shootHit;
-    private float cameraPitch;
-   [SerializeField] float fovNormal = 60f;
+    public bool shootHit;
+    [SerializeField] float fovNormal = 60f;
     [SerializeField] float fovZoomed = 30f;
     [SerializeField] float targetFOV;
     [SerializeField] float fovSpeed = 5f;
-    [SerializeField] float  minDistance = 5f;
-    [SerializeField] float cameraDistance = 10f;
-    [SerializeField] float cameraRadius = 3f;
+    [SerializeField] float zoomSpeed = 2f;
+    private float cameraPitch;
+    public float CameraPitch => cameraPitch;
     [SerializeField] float acceleration = 30f;
     [SerializeField] float deceleration = 15f;
     [SerializeField] float maxSpeed = 10f;
     [SerializeField] float slowMaxSpeed = 4f;
     [SerializeField] float jumpHeight = 1.5f;
     [SerializeField] float jumpForce = 5f;
-    public float currentHeight => transform.position.y;
-    public float currentSpeed => new Vector3(rb.linearVelocity.x,0, rb.linearVelocity.z).magnitude;
 
     // MISC VARS
     public LayerMask collisionMask;
-    private float  currentDistance;
+    [SerializeField] Transform respawnPoint;
+    [SerializeField] float fallTreshold = -35f;
 
     private void Start()
     {
@@ -41,10 +39,10 @@ public class Controller : MonoBehaviour
         Cursor.visible = false;
 
         rb = gameObject.GetComponent<Rigidbody>();
-        cam = playerCamera.GetComponent<Camera>();
+        cam = playerCamera.GetComponentInChildren<Camera>();
+        cc = GetComponent<CharacterController>();
 
         cam.fieldOfView = fovNormal;
-        currentDistance = cameraDistance;
 
         shootHit = false;
 
@@ -61,33 +59,55 @@ public class Controller : MonoBehaviour
         Vector3 currentVelocity = rb.linearVelocity;
         Vector3 horizontalVelocity = new Vector3(currentVelocity.x, 0f, currentVelocity.z);
 
-        if(desiredDirection.sqrMagnitude > 0.01f)
+        if (desiredDirection.sqrMagnitude > 0.01f)
         {
             horizontalVelocity = Vector3.MoveTowards(horizontalVelocity, desiredDirection * speedLimit, acceleration * Time.fixedDeltaTime);
         }
-        else
-        {
+        
             horizontalVelocity = Vector3.MoveTowards(horizontalVelocity, Vector3.zero, deceleration * Time.fixedDeltaTime);
 
             rb.linearVelocity = new Vector3(horizontalVelocity.x, currentVelocity.y, horizontalVelocity.z);
+
+        if (transform.position.y < fallTreshold)
+        {
+            Respawn();
         }
+
+        void Respawn()
+    {
+        if (cc != null)
+        {
+            cc.enabled = false;
+            transform.position = respawnPoint.position;
+            cc.enabled = true;
+            return;
+        }
+
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+        }
+        transform.position = respawnPoint.position;
+
     }
+}
 
     private void Update()
     {
         RaycastHit hitInfo;
-
 
         // CAMERA CONTROLS
         float mouseYaw = Input.GetAxis("Mouse X");
         float mousePitch = Input.GetAxis("Mouse Y");
 
         transform.Rotate(
-            Vector3.up * mouseYaw * mouseSensitivity * Time.deltaTime);
+            Vector3.up * mouseYaw * mouseSensitivity);
             
-            cameraPitch -= mousePitch * mouseSensitivity * Time.deltaTime;
+            cameraPitch -= mousePitch * mouseSensitivity;
+            cameraPitch = Mathf.Clamp(cameraPitch, -90.0f, 90.0f);
 
-            cameraPitch = Mathf.Clamp( cameraPitch, -90.0f, 90.0f);
+            playerCamera.transform.localRotation = Quaternion.Euler(cameraPitch, 0f, 0f);
             
         if(Input.GetMouseButton(1))
         {
@@ -100,12 +120,15 @@ public class Controller : MonoBehaviour
         cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, targetFOV, Time.deltaTime *  fovSpeed);
 
         
+        // for this system make sure to setup a collision system
+
+        Transform camT = playerCamera.transform;
+
         if(Input.GetMouseButton(0))
         {
-            Physics.Raycast(transform.position, Vector3.forward, shootDistance);
-            shootHit = true;    
+            shootHit = Physics.Raycast(camT.position, camT.forward, shootDistance);
         }
-        if (Physics.Raycast(transform.position, Vector3.forward, out hitInfo, interactRange))
+        if (Physics.Raycast(transform.position,camT.forward, out hitInfo, interactRange))
         {
             Debug.Log("I am looking at object: " + hitInfo.collider.name);
         }
@@ -118,40 +141,9 @@ public class Controller : MonoBehaviour
         }
 
     }
-
     void OnDrawGizmos()
     {
         Gizmos.color = Color.aquamarine;
-        Gizmos.DrawRay(transform.position, Vector3.forward * shootDistance);
-    }
-
-    void LateUpdate()
-    {
-        // CAMERA CLIPPING FUNCTION
-
-        // currently broken please fix this :(
-
-        Vector3 pivot = transform.position + Vector3.up * 1.5f;
-        Quaternion rotation = Quaternion.Euler(cameraPitch, transform.eulerAngles.y, 0f);
-        Vector3 direction = rotation * Vector3.back;
-
-        float wanted = cameraDistance;
-        if (Physics.SphereCast(pivot,
-        cameraRadius,
-        direction,
-        out RaycastHit hit,
-        cameraDistance,
-        collisionMask, QueryTriggerInteraction.Ignore))
-
-        {
-            wanted = Mathf.Clamp(hit.distance, minDistance, cameraDistance);
-        }
-
-        currentDistance = Mathf.Lerp
-        (currentDistance,
-        wanted,
-        Mathf.Clamp01(Time.deltaTime * lerpSpeed));
-
-        playerCamera.transform.SetPositionAndRotation(pivot + direction * currentDistance, rotation);
+        Gizmos.DrawRay(transform.position, transform.forward * shootDistance);
     }
 }
