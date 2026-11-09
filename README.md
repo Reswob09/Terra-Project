@@ -23,3 +23,7 @@ Things Im struggling with:
 - inheritance
 - big poo crashing my game
 
+Screenshot of game running:
+
+<img width="1457" height="876" alt="image" src="https://github.com/user-attachments/assets/3c80f731-199b-4911-9ce2-96d2649ee731" />
+
