@@ -12,7 +12,14 @@ Basic Mechanics:
 Player can accelerate to a max speed of 200u
 Player can cling to specific walls for 3 seconds and jump off specific walls
 
+User settings:
+- chage your name (press escape and click on the input field, type your name then press enter)
+- pause, resume, quit, restart buttons
+- level select button in pause menu
+
 Things Im struggling with:
 - Making sure theres no mismanaged variables between scripts
 - finding time to work on other things besides player movement controls
-- compiling errors
+- inheritance
+- big poo crashing my game
+
