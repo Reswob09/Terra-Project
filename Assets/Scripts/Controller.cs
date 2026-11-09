@@ -63,35 +63,13 @@ public class Controller : MonoBehaviour
         {
             horizontalVelocity = Vector3.MoveTowards(horizontalVelocity, desiredDirection * speedLimit, acceleration * Time.fixedDeltaTime);
         }
-        
+        else
+        {
             horizontalVelocity = Vector3.MoveTowards(horizontalVelocity, Vector3.zero, deceleration * Time.fixedDeltaTime);
-
-            rb.linearVelocity = new Vector3(horizontalVelocity.x, currentVelocity.y, horizontalVelocity.z);
-
-        if (transform.position.y < fallTreshold)
-        {
-            Respawn();
         }
 
-        void Respawn()
-    {
-        if (cc != null)
-        {
-            cc.enabled = false;
-            transform.position = respawnPoint.position;
-            cc.enabled = true;
-            return;
-        }
-
-        if (rb != null)
-        {
-            rb.linearVelocity = Vector3.zero;
-            rb.angularVelocity = Vector3.zero;
-        }
-        transform.position = respawnPoint.position;
-
+        rb.linearVelocity = new Vector3(horizontalVelocity.x, currentVelocity.y, horizontalVelocity.z);
     }
-}
 
     private void Update()
     {
@@ -106,8 +84,6 @@ public class Controller : MonoBehaviour
             
             cameraPitch -= mousePitch * mouseSensitivity;
             cameraPitch = Mathf.Clamp(cameraPitch, -90.0f, 90.0f);
-
-            playerCamera.transform.localRotation = Quaternion.Euler(cameraPitch, 0f, 0f);
             
         if(Input.GetMouseButton(1))
         {
@@ -140,6 +116,29 @@ public class Controller : MonoBehaviour
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
         }
 
+        void Respawn()
+        {
+            if (cc != null)
+            {
+            cc.enabled = false;
+            transform.position = respawnPoint.position;
+            cc.enabled = true;
+            return;
+            }
+
+             if (rb != null)
+            {
+              rb.linearVelocity = Vector3.zero;
+               rb.angularVelocity = Vector3.zero;
+            }
+             transform.position = respawnPoint.position;
+
+             if (transform.position.y < fallTreshold)
+            {
+               Respawn();
+            }
+        }
+        Debug.Log($"mouseYaw: {mouseYaw}   playerYaw: {transform.eulerAngles.y}");
     }
     void OnDrawGizmos()
     {

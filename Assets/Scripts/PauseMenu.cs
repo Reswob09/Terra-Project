@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -27,6 +26,7 @@ public class PauseMenu : MonoBehaviour
     public void Resume()
     {
         SetPaused(false);
+
     }
 
     public void Restart()
@@ -62,9 +62,24 @@ public class PauseMenu : MonoBehaviour
         }
     }
 
-    private void Oestroy()
+    public void ReturnToMainMenu()
+    {
+        SetPaused(false);
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+        SceneManager.LoadScene("MainMenu");
+    }
+
+    private void OnDestroy()
     {
         IsPaused = false;
-        Time.timeScale =1f;        
+        Time.timeScale =1f;    
+        AudioListener.pause = false;    
+    }
+
+    public void ReturnToHubArea()
+    {
+        SetPaused(false);
+        SceneManager.LoadScene("Hub_LevelSelect");
     }
 }

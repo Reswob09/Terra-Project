@@ -6,6 +6,9 @@ TagManager:
   tags:
   - BehaviorTriggers
   - LayerMask
+  - PlayArea
+  - ParkourArea
+  - LevelSelect
   layers:
   - Default
   - TransparentFX

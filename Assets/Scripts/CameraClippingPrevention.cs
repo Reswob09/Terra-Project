@@ -9,6 +9,7 @@ public class CameraClippingPrevention : MonoBehaviour
     [SerializeField] float cameraRadius = 3f;
 
     [SerializeField] float cameraLerpSpeed = 10f;
+    [SerializeField] CameraZoom zoom;
     private float cameraPitch;
     public LayerMask collisionMask;
     public GameObject playerCamera;
@@ -26,27 +27,21 @@ public class CameraClippingPrevention : MonoBehaviour
     }
     void LateUpdate()
     {
-        // CAMERA CLIPPING FUNCTION
+       float maxDistance = zoom.CurrentDistance;
+       float minDistance = Mathf.Min(cameraMinDistance, maxDistance);
 
         Vector3 pivot = transform.position + Vector3.up * 1.5f;
         Quaternion rotation = Quaternion.Euler(controller.CameraPitch, transform.eulerAngles.y, 0f);
         Vector3 direction = rotation * Vector3.back;
 
-        float wanted = cameraDistance;
-        if (Physics.SphereCast(pivot,
-        cameraRadius,
-        direction,
-        out RaycastHit hit,
-        cameraDistance,
-        collisionMask, QueryTriggerInteraction.Ignore))
-
+        float wanted = maxDistance;
+        if (Physics.SphereCast(pivot, cameraRadius, direction, out RaycastHit hit,
+        maxDistance,collisionMask, QueryTriggerInteraction.Ignore))
         {
-            wanted = Mathf.Clamp(hit.distance, cameraMinDistance, cameraDistance);
+            wanted = Mathf.Clamp(hit.distance, minDistance, maxDistance);
         }
 
-        cameraCurrentDistance = Mathf.Lerp
-        (cameraCurrentDistance,
-        wanted,
+        cameraCurrentDistance = Mathf.Lerp(cameraCurrentDistance, wanted,
         Mathf.Clamp01(Time.deltaTime * cameraLerpSpeed));
 
         playerCamera.transform.SetPositionAndRotation(pivot + direction * cameraCurrentDistance, rotation);

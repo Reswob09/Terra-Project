@@ -11,6 +11,7 @@ public class CameraZoom : MonoBehaviour
 
    float targetDistance;
    float currentDistance;
+   public float CurrentDistance => currentDistance;
     void Start()
     {
         targetDistance = currentDistance = Mathf.Clamp(startDistance, minDistance, maxDistance);
@@ -29,6 +30,5 @@ public class CameraZoom : MonoBehaviour
     void LateUpdate()
     {
         currentDistance = Mathf.Lerp(currentDistance, targetDistance, smoothing * Time.deltaTime);
-        transform.localPosition = new Vector3(0f, 0f, -currentDistance);
     }
 }
