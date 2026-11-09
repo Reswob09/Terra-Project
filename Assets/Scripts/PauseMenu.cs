@@ -32,7 +32,7 @@ public class PauseMenu : MonoBehaviour
     public void Restart()
     {
         SetPaused(false);
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().buildIndex);
     }
 
     public void QuitGame()
@@ -67,7 +67,7 @@ public class PauseMenu : MonoBehaviour
         SetPaused(false);
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
-        SceneManager.LoadScene("MainMenu");
+        SceneManager.LoadSceneAsync("MainMenu");
     }
 
     private void OnDestroy()
@@ -80,6 +80,6 @@ public class PauseMenu : MonoBehaviour
     public void ReturnToHubArea()
     {
         SetPaused(false);
-        SceneManager.LoadScene("Hub_LevelSelect");
+        SceneManager.LoadSceneAsync("Hub_LevelSelect");
     }
 }

@@ -16,7 +16,7 @@ public class LoadLevelSelect : MonoBehaviour
     {
         if (CompareTag("LevelSelect"))
         {
-            SceneManager.LoadScene("Hub_LevelSelect");
+            SceneManager.LoadSceneAsync("Hub_LevelSelect");
         }
     }
 }

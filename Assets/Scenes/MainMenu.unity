@@ -685,6 +685,26 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 984448391268922763, guid: bfc6a23a2ef68124aaa99d1b7ef5f12a, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.4369523
+      objectReference: {fileID: 0}
+    - target: {fileID: 984448391268922763, guid: bfc6a23a2ef68124aaa99d1b7ef5f12a, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.4369523
+      objectReference: {fileID: 0}
+    - target: {fileID: 984448391268922763, guid: bfc6a23a2ef68124aaa99d1b7ef5f12a, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.4369523
+      objectReference: {fileID: 0}
+    - target: {fileID: 984448391268922763, guid: bfc6a23a2ef68124aaa99d1b7ef5f12a, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 227
+      objectReference: {fileID: 0}
+    - target: {fileID: 984448391268922763, guid: bfc6a23a2ef68124aaa99d1b7ef5f12a, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -197
+      objectReference: {fileID: 0}
     - target: {fileID: 3371747525105385273, guid: bfc6a23a2ef68124aaa99d1b7ef5f12a, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
       value: 1
@@ -803,11 +823,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5499377917152959587, guid: bfc6a23a2ef68124aaa99d1b7ef5f12a, type: 3}
       propertyPath: m_LocalScale.x
-      value: 11.4094305
+      value: 17.136965
       objectReference: {fileID: 0}
     - target: {fileID: 5499377917152959587, guid: bfc6a23a2ef68124aaa99d1b7ef5f12a, type: 3}
       propertyPath: m_LocalScale.y
-      value: 7.1414423
+      value: 10.726446
+      objectReference: {fileID: 0}
+    - target: {fileID: 5499377917152959587, guid: bfc6a23a2ef68124aaa99d1b7ef5f12a, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1.5126642
       objectReference: {fileID: 0}
     - target: {fileID: 6008418397573780682, guid: bfc6a23a2ef68124aaa99d1b7ef5f12a, type: 3}
       propertyPath: m_Name

@@ -383,7 +383,6 @@ GameObject:
   - component: {fileID: 2195309559877930891}
   - component: {fileID: 1042679556665794866}
   - component: {fileID: 7602193723886651141}
-  - component: {fileID: 2701888905377498568}
   - component: {fileID: 82662868326915518}
   - component: {fileID: 851915785315892819}
   - component: {fileID: 5719568033455161708}
@@ -577,24 +576,6 @@ MonoBehaviour:
   jumpHeight: 1.5
   player: {fileID: 1042679556665794866}
   rb: {fileID: 2195309559877930891}
---- !u!114 &2701888905377498568
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1919328380431688912}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2e2890d9a6d02b143827d8dfcf06bf74, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerHUD
-  player: {fileID: 7602193723886651141}
-  currentVelocity: 0
-  currentHeight: 0
-  moveSpeed: {fileID: 0}
-  moveHeight: {fileID: 0}
-  objectIdentifier: {fileID: 0}
 --- !u!114 &82662868326915518
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -17,8 +17,7 @@ public class LoadPlayArea : MonoBehaviour
     {
         if (CompareTag("PlayArea"))
             {
-                Debug.Log("Loading... ");
-                SceneManager.LoadScene("PlayAreaScene");
+                SceneManager.LoadSceneAsync("PlayAreaScene");
             }
     }
 }

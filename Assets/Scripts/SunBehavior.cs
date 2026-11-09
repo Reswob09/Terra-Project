@@ -24,7 +24,7 @@ public class SunBehavior : MonoBehaviour
     private float t = 0f;
     void Start()
     {
-       GetComponent<DirectionalLight>();
+    
     }
 
     void Update()

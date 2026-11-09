@@ -16,7 +16,7 @@ public class LoadParkourArea : MonoBehaviour
     {
         if (CompareTag("ParkourArea"))
         {
-            SceneManager.LoadScene("SampleScene");
+            SceneManager.LoadSceneAsync("SampleScene");
         }
     }
 }

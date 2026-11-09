@@ -7563,7 +7563,6 @@ GameObject:
   - component: {fileID: 2195309558553235831}
   - component: {fileID: 1042679555845701582}
   - component: {fileID: 7602193723063605753}
-  - component: {fileID: 2701888904554257204}
   - component: {fileID: 82662866999788354}
   - component: {fileID: 851915786675282095}
   - component: {fileID: 7602193723063605754}
@@ -7898,24 +7897,6 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
---- !u!114 &2701888904554257204
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1919328381253073452}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2e2890d9a6d02b143827d8dfcf06bf74, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerHUD
-  player: {fileID: 7602193723063605753}
-  currentVelocity: 0
-  currentHeight: 0
-  moveSpeed: {fileID: 0}
-  moveHeight: {fileID: 0}
-  objectIdentifier: {fileID: 0}
 --- !u!20 &2827629421324006294
 Camera:
   m_ObjectHideFlags: 0
