@@ -802,8 +802,12 @@ PrefabInstance:
       value: NIMBUS SECTOR
       objectReference: {fileID: 0}
     - target: {fileID: 5499377917152959587, guid: bfc6a23a2ef68124aaa99d1b7ef5f12a, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 11.4094305
+      objectReference: {fileID: 0}
+    - target: {fileID: 5499377917152959587, guid: bfc6a23a2ef68124aaa99d1b7ef5f12a, type: 3}
       propertyPath: m_LocalScale.y
-      value: 5.374476
+      value: 7.1414423
       objectReference: {fileID: 0}
     - target: {fileID: 6008418397573780682, guid: bfc6a23a2ef68124aaa99d1b7ef5f12a, type: 3}
       propertyPath: m_Name
